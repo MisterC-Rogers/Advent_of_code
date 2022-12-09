@@ -4,12 +4,8 @@ use derive_more::{Add, AddAssign, Mul, Sub};
 use std::{collections::HashSet, vec};
 
 fn main() {
-    let file = fs::read_to_string("./sample.txt").unwrap();
-    let file_2 = fs::read_to_string("./sample2.txt").unwrap();
-    // let inputs = fs::read_to_string("./inputs.txt").unwrap();
-    println!("part one: {}", process(&file, 1));
-    println!("part two: {}", process(&file_2, 9));
-    // println!("part one: {}, part two: {}", process(&inputs, 1), process(&inputs, 9));
+    let inputs = fs::read_to_string("./inputs.txt").unwrap();
+    println!("part one: {}, part two: {}", process(&inputs, 1), process(&inputs, 9));
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Add, AddAssign, Mul, Sub)]
