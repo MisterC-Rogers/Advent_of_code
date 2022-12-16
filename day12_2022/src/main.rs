@@ -6,6 +6,7 @@ use pathfinding::prelude::dijkstra;
 fn main() {
     let inputs = fs::read_to_string("./inputs.txt").unwrap();
     println!("{}", part1(&inputs));
+    println!("{}", part2(&inputs));
 }
 
 #[derive(Clone, Copy, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
@@ -109,6 +110,28 @@ fn part1(input: &str) -> i16 {
     return result;
 }
 
+fn part2(input: &str) -> usize {
+    let mut result = usize::MAX;
+    let (map, _, end): (Grid<usize>, Pos, Pos) = make_map(input);
+    for row in 0..map.rows() {
+        for column in 0..map.cols() {
+            if *map.get(row, column).unwrap() == 0 {
+                let start = Pos(row, column);
+                let path: Option<(Vec<Pos>, usize)> = dijkstra(&start, |p| p.neighbours(map.clone()), |p| *p == end);
+                if path.is_none() {
+                    continue;
+                }
+                let (steps, _) = path.unwrap();
+                let count = steps.len() - 1;
+                if result > count {
+                    result = count;
+                }
+            }
+        }
+    }
+    result
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -122,5 +145,10 @@ abdefghi";
     #[test]
     fn part1_works() {
         assert_eq!(part1(INPUT), 31);
+    }
+    
+    #[test]
+    fn part_2_sample_input() {
+        assert_eq!(part2(INPUT), 29);
     }
 }
