@@ -1,9 +1,11 @@
 use std::fs;
 use serde_json::{json, Value};
+use std::cmp::Ordering;
 
 fn main() {
     let inputs = fs::read_to_string("./inputs.txt").unwrap();
     println!("{}", part1(&inputs));
+    println!("{}", part2(&inputs));
 }
 
 
@@ -67,6 +69,54 @@ fn part1(input: &str) -> String {
     result.to_string()
 }
 
+
+fn extract_data(input: &str) -> Vec<Value> {
+    let mut packets: Vec<Value> = Vec::new();
+    for packet in input.split('\n') {
+        if packet.is_empty() {
+            continue;
+        }
+        let data: Value = serde_json::from_str(packet).unwrap();
+        packets.push(data);
+    }
+    packets
+}
+
+fn add_divider_packets(input: Vec<Value>) -> Vec<Value> {
+    let mut data = input;
+    data.push(json!([[2]]));
+    data.push(json!([[6]]));
+    data
+}
+
+fn part2(input: &str) -> String {
+    let mut result = 1;
+    let mut packets = extract_data(input);
+    packets = add_divider_packets(packets);
+
+    packets.sort_by(|a, b| match compare_pairs(a, b) {
+        Some(true) => Ordering::Less,
+        Some(false) => Ordering::Greater,
+        _ => Ordering::Equal,
+    });
+    let mut data_index = 1;
+    for data in &packets {
+        if data.get(0).is_some()
+            && data.get(1).is_none()
+            && data.get(0).unwrap().get(0).is_some()
+            && data.get(0).unwrap().get(1).is_none()
+            && data.get(0).unwrap().get(0).unwrap().is_number()
+            && (data.get(0).unwrap().get(0).unwrap() == 2
+                || data.get(0).unwrap().get(0).unwrap() == 6)
+        {
+            result *= data_index;
+        }
+
+        data_index += 1;
+    }
+    result.to_string()
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -98,5 +148,10 @@ mod tests {
     #[test]
     fn part1_works() {
         assert_eq!(part1(INPUT), "13");
+    }
+    
+    #[test]
+    fn part2_works() {
+        assert_eq!(part2(INPUT), "140");
     }
 }
